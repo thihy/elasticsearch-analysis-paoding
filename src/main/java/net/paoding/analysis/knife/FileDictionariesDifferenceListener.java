@@ -62,12 +62,12 @@ public class FileDictionariesDifferenceListener implements DifferenceListener {
 	}
 
 	public synchronized void on(Difference diff) {
-		List/* <Node> */all = new LinkedList/* <Node> */();
-		all.addAll((List/* <Node> */) diff.getDeleted());
-		all.addAll((List/* <Node> */) diff.getModified());
-		all.addAll((List/* <Node> */) diff.getNewcome());
-		for (Iterator iter = all.iterator(); iter.hasNext();) {
-			Node node = (Node) iter.next();
+		List<Node> all = new LinkedList<Node>();
+		all.addAll(diff.getDeleted());
+		all.addAll(diff.getModified());
+		all.addAll(diff.getNewcome());
+		for (Iterator<Node> iter = all.iterator(); iter.hasNext();) {
+			Node node = iter.next();
 			if (node.isFile()) {
 				dictionaries.refreshDicWords(node.getPath());
 			}

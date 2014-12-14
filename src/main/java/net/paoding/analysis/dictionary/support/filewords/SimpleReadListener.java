@@ -18,6 +18,7 @@ package net.paoding.analysis.dictionary.support.filewords;
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 
 import net.paoding.analysis.dictionary.Word;
 import net.paoding.analysis.knife.CharSet;
@@ -30,8 +31,8 @@ import net.paoding.analysis.knife.CharSet;
  * 
  */
 public class SimpleReadListener implements ReadListener {
-	private Map/* <String, Set<Word>> */dics = new Hashtable/* <String, Set<Word>> */();
-	private HashSet/* <Word> */words = new HashSet/* <Word> */();
+	private Map<String, Set<Word>> dics = new Hashtable <String, Set<Word>>();
+	private HashSet<Word> words = new HashSet<Word>();
 	private String ext = ".dic";
 
 	public SimpleReadListener(String ext) {
@@ -45,7 +46,7 @@ public class SimpleReadListener implements ReadListener {
 		if (!file.endsWith(ext)) {
 			return false;
 		}
-		words = new HashSet/* <String> */();
+		words = new HashSet<Word>();
 		return true;
 	}
 
@@ -99,7 +100,7 @@ public class SimpleReadListener implements ReadListener {
 		}
 	}
 
-	public Map/* <String, Set<String>> */getResult() {
+	public Map<String, Set<Word>>getResult() {
 		return dics;
 	}
 

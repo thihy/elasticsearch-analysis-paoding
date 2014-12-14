@@ -1,15 +1,16 @@
 package net.paoding.analysis.analyzer.estimate;
 
-import net.paoding.analysis.analyzer.PaodingTokenizer;
-import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.TokenStream;
-import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.LinkedList;
+
+import net.paoding.analysis.analyzer.PaodingTokenizer;
+
+import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.TokenStream;
+import org.apache.lucene.analysis.tokenattributes.CharTermAttribute;
 
 public class Estimate {
 	private Analyzer analyzer;

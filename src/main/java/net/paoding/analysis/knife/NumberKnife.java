@@ -36,12 +36,14 @@ public class NumberKnife extends CombinatoricsKnife implements DictionariesWare 
 		setDictionaries(dictionaries);
 	}
 
+	@Override
 	public void setDictionaries(Dictionaries dictionaries) {
 		super.setDictionaries(dictionaries);
 		units = dictionaries.getUnitsDictionary();
 	}
 	
 
+	@Override
 	public int assignable(Beef beef, int offset, int index) {
 		char ch = beef.charAt(index);
 		if (CharSet.isArabianNumber(ch))
@@ -63,6 +65,7 @@ public class NumberKnife extends CombinatoricsKnife implements DictionariesWare 
 		return LIMIT;
 	}
 	
+	@Override
 	protected int collectLimit(Collector collector, Beef beef,
 			int offset, int point, int limit, int dicWordVote) {
 		// "123abc"的直接调用super的

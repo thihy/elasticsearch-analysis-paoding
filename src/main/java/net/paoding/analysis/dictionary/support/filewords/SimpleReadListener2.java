@@ -30,12 +30,12 @@ import net.paoding.analysis.dictionary.Word;
  * 
  */
 public class SimpleReadListener2 implements ReadListener {
-	private Map/* <String, Collection<Word>> */dics = new Hashtable/* <String, Collection<String>> */();
-	private Class collectionClass = HashSet.class;
-	private Collection/* <Word> */words;
+	private Map<String, Collection<Word>> dics = new Hashtable<String, Collection<Word>>();
+	private Class<?> collectionClass = HashSet.class;
+	private Collection<Word> words;
 	private String ext = ".dic";
 
-	public SimpleReadListener2(Class collectionClass, String ext) {
+	public SimpleReadListener2(Class<?> collectionClass, String ext) {
 		this.ext = ext;
 		this.collectionClass = collectionClass;
 	}
@@ -48,7 +48,7 @@ public class SimpleReadListener2 implements ReadListener {
 			return false;
 		}
 		try {
-			words = (Collection) collectionClass.newInstance();
+			words = (Collection<Word>) collectionClass.newInstance();
 		} catch (InstantiationException e) {
 			e.printStackTrace();
 		} catch (IllegalAccessException e) {
@@ -84,7 +84,7 @@ public class SimpleReadListener2 implements ReadListener {
 		}
 	}
 
-	public Map/* <String, Collection<Word>> */getResult() {
+	public Map<String, Collection<Word>> getResult() {
 		return dics;
 	}
 

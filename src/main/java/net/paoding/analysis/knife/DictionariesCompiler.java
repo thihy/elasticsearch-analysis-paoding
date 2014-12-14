@@ -17,6 +17,8 @@ package net.paoding.analysis.knife;
 
 
 import java.util.Properties;
+
+import net.paoding.analysis.ext.PaodingAnalyzerListener;
 /**
  * 
  * @author  Zhiliang Wang [qieqie.wang@gmail.com]
@@ -49,4 +51,6 @@ public interface DictionariesCompiler {
 	 * @throws Exception
 	 */
 	public Dictionaries readCompliedDictionaries(Properties p) throws Exception;
+	
+	
 }

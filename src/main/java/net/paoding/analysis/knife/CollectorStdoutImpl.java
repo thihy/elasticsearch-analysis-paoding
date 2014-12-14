@@ -22,8 +22,8 @@ package net.paoding.analysis.knife;
  */
 public class CollectorStdoutImpl implements Collector {
 
-	private static ThreadLocal/* <Integer> */tl = new ThreadLocal/* <Integer> */() {
-		protected Object/* Integer */initialValue() {
+	private static ThreadLocal<Integer> tl = new ThreadLocal<Integer>() {
+		protected Integer initialValue() {
 			return new Integer(0);
 		}
 	};

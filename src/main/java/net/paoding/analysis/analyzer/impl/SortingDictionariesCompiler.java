@@ -23,6 +23,7 @@ import net.paoding.analysis.knife.Knife;
 public class SortingDictionariesCompiler implements DictionariesCompiler {
 	public static final String VERSION = "2";
 	
+	
 	public boolean shouldCompile(Properties p) throws Exception {
 		String dicHome = p.getProperty("paoding.dic.home.absolute.path");
 		File dicHomeFile = new File(dicHome);
@@ -54,6 +55,7 @@ public class SortingDictionariesCompiler implements DictionariesCompiler {
 	
 	
 	public void compile(Dictionaries dictionaries, Knife knife, Properties p) throws Exception {
+		
 		String dicHome = p.getProperty("paoding.dic.home.absolute.path");
 		String noiseCharactor = getProperty(p, Constants.DIC_NOISE_CHARACTOR);
 		String noiseWord = getProperty(p, Constants.DIC_NOISE_WORD);
@@ -170,5 +172,4 @@ public class SortingDictionariesCompiler implements DictionariesCompiler {
 	private static String getProperty(Properties p, String name) {
 		return Constants.getProperty(p, name);
 	}
-	
 }

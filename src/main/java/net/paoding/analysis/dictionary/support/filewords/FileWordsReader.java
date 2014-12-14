@@ -24,10 +24,13 @@ import java.io.InputStreamReader;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.Map;
+import java.util.Set;
 
+import net.paoding.analysis.dictionary.Word;
 import net.paoding.analysis.knife.CharSet;
 
 /**
@@ -39,15 +42,15 @@ import net.paoding.analysis.knife.CharSet;
  */
 public class FileWordsReader {
 
-	public static Map/*<String, Set<Word>>*/ readWords(
+	public static Map<String, Set<Word>> readWords(
 			String fileOrDirectory, String charsetName, int maxWordLen) throws IOException {
 		SimpleReadListener l = new SimpleReadListener();
 		readWords(fileOrDirectory, l, charsetName, maxWordLen);
 		return l.getResult();
 	}
 	
-	public static Map/*<String, Collection<Word>>*/ readWords(
-			String fileOrDirectory, String charsetName, int maxWordLen, Class collectionClass, String ext) throws IOException {
+	public static Map<String, Collection<Word>> readWords(
+			String fileOrDirectory, String charsetName, int maxWordLen, Class<?> collectionClass, String ext) throws IOException {
 		SimpleReadListener2 l = new SimpleReadListener2(collectionClass, ext);
 		readWords(fileOrDirectory, l, charsetName, maxWordLen);
 		return l.getResult();
@@ -70,8 +73,8 @@ public class FileWordsReader {
 				throw new FileNotFoundException("file \"" + fileOrDirectory + "\" not found!");
 			}
 		}
-		ArrayList/*<File>*/ dirs = new ArrayList/*<File>*/();
-		LinkedList/*<File>*/ dics = new LinkedList/*<File>*/();
+		ArrayList<File> dirs = new ArrayList<File>();
+		LinkedList<File> dics = new LinkedList<File>();
 		String dir;
 		if (file.isDirectory()) {
 			dirs.add(file);
@@ -93,7 +96,7 @@ public class FileWordsReader {
 				}
 			}
 		}
-		for (Iterator iter = dics.iterator(); iter.hasNext();) {
+		for (Iterator<File> iter = dics.iterator(); iter.hasNext();) {
 			File f = (File) iter.next();
 			String name = f.getAbsolutePath().substring(
 						dir.length() + 1);
@@ -119,7 +122,9 @@ public class FileWordsReader {
 				}
 				
 				// maximum word length limitation
-				if (maxWordLen <= 0 || word.length() <= maxWordLen) l.onWord(word);
+				if (maxWordLen <= 0 || word.length() <= maxWordLen){
+					l.onWord(word);
+				}
 			}
 			l.onFileEnd(name);
 			in.close();

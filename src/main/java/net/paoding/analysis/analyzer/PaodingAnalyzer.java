@@ -15,14 +15,13 @@
  */
 package net.paoding.analysis.analyzer;
 
+import java.util.Properties;
+
 import net.paoding.analysis.Constants;
 import net.paoding.analysis.analyzer.estimate.TryPaodingAnalyzer;
 import net.paoding.analysis.knife.Knife;
 import net.paoding.analysis.knife.Paoding;
 import net.paoding.analysis.knife.PaodingMaker;
-
-import java.util.Properties;
-import java.util.logging.Logger;
 
 /**
  * PaodingAnalyzer是基于“庖丁解牛”框架的Lucene词语分析器，是“庖丁解牛”框架对Lucene的适配器。
@@ -42,26 +41,25 @@ import java.util.logging.Logger;
  * @since 1.0
  * 
  */
-public final class PaodingAnalyzer extends PaodingAnalyzerBean {
+public class PaodingAnalyzer extends PaodingAnalyzerBean {
 
-    private static final Logger log = Logger.getLogger("paoding-analyzer");
 	/**
 	 * 根据类路径下的paoding-analysis.properties构建一个PaodingAnalyzer对象
 	 * <p>
 	 * 在一个JVM中，可多次创建，而并不会多次读取属性文件，不会重复读取字典。
 	 */
 	public PaodingAnalyzer() {
-		this(PaodingMaker.DEFAULT_PROPERTIES_PATH,"");
+		this(PaodingMaker.DEFAULT_PROPERTIES_PATH);
 	}
 
 	/**
 	 * @param propertiesPath null表示使用类路径下的paoding-analysis.properties
 	 */
-	public PaodingAnalyzer(String propertiesPath,String defaultDictPath) {
-		init(propertiesPath,defaultDictPath);
+	public PaodingAnalyzer(String propertiesPath) {
+		init(propertiesPath);
 	}
 
-	protected void init(String propertiesPath,String defaultDictPath) {
+	protected void init(String propertiesPath) {
 		// 根据PaodingMaker说明，
 		// 1、多次调用getProperties()，返回的都是同一个properties实例(只要属性文件没发生过修改)
 		// 2、相同的properties实例，PaodingMaker也将返回同一个Paoding实例
@@ -69,8 +67,7 @@ public final class PaodingAnalyzer extends PaodingAnalyzerBean {
 		if (propertiesPath == null) {
 			propertiesPath = PaodingMaker.DEFAULT_PROPERTIES_PATH;
 		}
-		Properties properties = PaodingMaker.getProperties(propertiesPath,defaultDictPath);
-
+		Properties properties = PaodingMaker.getProperties(propertiesPath);
 		String mode = Constants
 				.getProperty(properties, Constants.ANALYZER_MODE);
 		Paoding paoding = PaodingMaker.make(properties);
@@ -104,7 +101,7 @@ public final class PaodingAnalyzer extends PaodingAnalyzerBean {
 
 	/**
 	 * @param knife
-	 * @param mode
+	 * @param mode default_mode
 	 * @deprecated
 	 */
 	public PaodingAnalyzer(Knife knife, int mode) {

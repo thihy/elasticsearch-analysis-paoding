@@ -91,7 +91,7 @@ public class Constants {
 	public static final String ANALYZER_DICTIONARIES_COMPILER_DEFAULT = null;
 
 	// -------------------------------------------------------------
-	private static final Map/* <String, String> */map = new HashMap();
+	private static final Map<String, String> map = new HashMap<String, String>();
 
 	static {
 		map.put(DIC_HOME_CONFIG_FIRST, DIC_HOME_CONFIG_FIRST_DEFAULT);

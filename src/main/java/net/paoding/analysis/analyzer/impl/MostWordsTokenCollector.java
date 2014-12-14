@@ -18,8 +18,7 @@ package net.paoding.analysis.analyzer.impl;
 import java.util.Iterator;
 
 import net.paoding.analysis.analyzer.TokenCollector;
-
-import org.apache.lucene.analysis.Token;
+import net.paoding.analysis.knife.Token;
 
 /**
  * 
@@ -27,10 +26,16 @@ import org.apache.lucene.analysis.Token;
  * 
  * @since 1.1
  */
-public class MostWordsTokenCollector implements TokenCollector, Iterator {
+public class MostWordsTokenCollector implements TokenCollector, Iterator<Token> {
 
 	private LinkedToken firstToken;
 	private LinkedToken lastToken;
+
+	@Override
+	public void clear() {
+		this.firstToken = null;
+		this.lastToken = null;
+	}
 
 	/**
 	 * Collector接口实现。<br>
@@ -51,8 +56,7 @@ public class MostWordsTokenCollector implements TokenCollector, Iterator {
 			//
 		} else {
 			LinkedToken curTokenToTry = lastToken.pre;
-			while (curTokenToTry != null
-					&& tokenToAdd.compareTo(curTokenToTry) < 0) {
+			while (curTokenToTry != null && tokenToAdd.compareTo(curTokenToTry) < 0) {
 				curTokenToTry = curTokenToTry.pre;
 			}
 			if (curTokenToTry == null) {
@@ -64,14 +68,14 @@ public class MostWordsTokenCollector implements TokenCollector, Iterator {
 				curTokenToTry.next.pre = tokenToAdd;
 				tokenToAdd.pre = curTokenToTry;
 				curTokenToTry.next = tokenToAdd;
-				
+
 			}
 		}
 	}
 
 	private LinkedToken nextLinkedToken;
 
-	public Iterator/* <Token> */iterator() {
+	public Iterator<Token> iterator() {
 		nextLinkedToken = firstToken;
 		firstToken = null;
 		return this;
@@ -81,16 +85,22 @@ public class MostWordsTokenCollector implements TokenCollector, Iterator {
 		return nextLinkedToken != null;
 	}
 
-	public Object next() {
+	public Token next() {
 		LinkedToken ret = nextLinkedToken;
 		nextLinkedToken = nextLinkedToken.next;
 		return ret;
 	}
 
 	public void remove() {
+
 	}
 
-	private static class LinkedToken extends Token implements Comparable {
+	private static class LinkedToken extends Token implements Comparable<LinkedToken> {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 118708L;
+
 		public LinkedToken pre;
 		public LinkedToken next;
 
@@ -98,13 +108,12 @@ public class MostWordsTokenCollector implements TokenCollector, Iterator {
 			super(word, begin, end);
 		}
 
-		public int compareTo(Object obj) {
-			LinkedToken that = (LinkedToken) obj;
+		public int compareTo(LinkedToken obj) {
 			// 简单/单单/简简单单/
-			if (this.endOffset() > that.endOffset())
+			if (this.endOffset() > obj.endOffset())
 				return 1;
-			if (this.endOffset() == that.endOffset()) {
-				return that.startOffset() - this.startOffset();
+			if (this.endOffset() == obj.endOffset()) {
+				return obj.startOffset() - this.startOffset();
 			}
 			return -1;
 		}

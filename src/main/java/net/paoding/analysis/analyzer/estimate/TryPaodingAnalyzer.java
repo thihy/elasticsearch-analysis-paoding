@@ -1,11 +1,18 @@
 package net.paoding.analysis.analyzer.estimate;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+
 import net.paoding.analysis.analyzer.PaodingAnalyzer;
 import net.paoding.analysis.knife.PaodingMaker;
-import org.apache.lucene.analysis.Analyzer;
 
-import java.io.*;
-import java.net.URL;
+import org.apache.lucene.analysis.Analyzer;
 
 public class TryPaodingAnalyzer {
 	private static final String ARGS_TIP = ":";
@@ -89,13 +96,13 @@ public class TryPaodingAnalyzer {
 		Analyzer analyzer;
 		if (analyzerName == null || analyzerName.length() == 0 || analyzerName.equalsIgnoreCase("paoding")) {
 			//properties==null等同于new new PaodingAnalyzer();
-			analyzer = new PaodingAnalyzer(properties,"");
+			analyzer = new PaodingAnalyzer(properties);
 			if (mode != null) {
 				((PaodingAnalyzer) analyzer).setMode(mode);
 			}
 		}
 		else {
-			Class clz;
+			Class<?> clz;
 			if (analyzerName.equalsIgnoreCase("standard")) {
 				analyzerName = "org.apache.lucene.analysis.standard.StandardAnalyzer";
 			}

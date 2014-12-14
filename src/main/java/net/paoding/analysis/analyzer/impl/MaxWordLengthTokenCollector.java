@@ -18,11 +18,8 @@ package net.paoding.analysis.analyzer.impl;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-
 import net.paoding.analysis.analyzer.TokenCollector;
-
-import org.apache.lucene.analysis.Token;
-
+import net.paoding.analysis.knife.Token;
 
 /**
  * 
@@ -36,20 +33,30 @@ public class MaxWordLengthTokenCollector implements TokenCollector {
 	 * 存储当前被knife分解而成的Token对象
 	 * 
 	 */
-	private LinkedList/* <Token> */ tokens = new LinkedList/* <Token> */();
+	private LinkedList<Token> tokens = new LinkedList<Token>();
 
 	private Token candidate;
 
 	private Token last;
 
-	public Iterator/* <Token> */ iterator() {
+	public MaxWordLengthTokenCollector() {
+	}
+
+	public Iterator<Token> iterator() {
 		if (candidate != null) {
 			this.tokens.add(candidate);
 			candidate = null;
 		}
-		Iterator/* <Token> */ iter = this.tokens.iterator();
-		this.tokens = new LinkedList/* <Token> */();
+		Iterator<Token> iter = this.tokens.iterator();
+		this.tokens = new LinkedList<Token>();
 		return iter;
+	}
+
+	@Override
+	public void clear() {
+		this.tokens.clear();
+		this.candidate = null;
+		this.last = null;
 	}
 
 	public void collect(String word, int offset, int end) {
@@ -70,9 +77,8 @@ public class MaxWordLengthTokenCollector implements TokenCollector {
 				candidate = null;
 			}
 		} else if (end >= c.endOffset()) {
-			if (last != null && last.startOffset() >= offset
-					&& last.endOffset() <= end) {
-				for (Iterator/* <Token> */ iter = tokens.iterator(); iter.hasNext();) {
+			if (last != null && last.startOffset() >= offset && last.endOffset() <= end) {
+				for (Iterator<Token> iter = tokens.iterator(); iter.hasNext();) {
 					last = (Token) iter.next();
 					if (last.startOffset() >= offset && last.endOffset() <= end) {
 						iter.remove();

@@ -1,6 +1,6 @@
 package net.paoding.analysis.dictionary;
 
-public class Word implements Comparable, CharSequence {
+public class Word implements Comparable<Word>, CharSequence {
 
 	public static final int DEFAUL = 0;
 	private String text;
@@ -34,8 +34,8 @@ public class Word implements Comparable, CharSequence {
 		this.modifiers = modifiers;
 	}
 
-	public int compareTo(Object obj) {
-		return this.text.compareTo(((Word) obj).text);
+	public int compareTo(Word obj) {
+		return this.text.compareTo(obj.text);
 	}
 
 	public String toString() {

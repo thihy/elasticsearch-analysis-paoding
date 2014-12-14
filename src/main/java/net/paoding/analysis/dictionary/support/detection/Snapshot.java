@@ -40,7 +40,7 @@ public class Snapshot {
 	private String root;
 
 	// String为相对根的地址，使用/作为目录分隔符
-	private Map/*<String, InnerNode>*/ nodesMap = new HashMap/*<String, InnerNode>*/();
+	private Map<String, InnerNode> nodesMap = new HashMap<String, InnerNode>();
 
 	//
 	private InnerNode[] nodes;
@@ -74,9 +74,9 @@ public class Snapshot {
 			rootNode.lastModified = rootFile.lastModified();
 			nodesMap.put(root, rootNode);
 			if (rootFile.isDirectory()) {
-				LinkedList/*<File>*/ files = getPosterity(rootFile, filter);
+				LinkedList<File> files = getPosterity(rootFile, filter);
 				nodes = new InnerNode[files.size()];
-				Iterator/*<File>*/ iter = files.iterator();
+				Iterator<File> iter = files.iterator();
 				for (int i = 0; i < nodes.length; i++) {
 					File f = (File) iter.next();
 					String path = f.getAbsolutePath().substring(
@@ -225,9 +225,9 @@ public class Snapshot {
 
 	// --------------------------------------------
 
-	private LinkedList/*<File>*/ getPosterity(File root, FileFilter filter) {
-		ArrayList/*<File>*/ dirs = new ArrayList/*<File>*/();
-		LinkedList/*<File>*/ files = new LinkedList/*<File>*/();
+	private LinkedList<File> getPosterity(File root, FileFilter filter) {
+		ArrayList<File> dirs = new ArrayList<File>();
+		LinkedList<File> files = new LinkedList<File>();
 		dirs.add(root);
 		int index = 0;
 		while (index < dirs.size()) {

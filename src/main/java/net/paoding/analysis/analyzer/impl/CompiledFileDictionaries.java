@@ -15,6 +15,13 @@
  */
 package net.paoding.analysis.analyzer.impl;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.Map;
+
 import net.paoding.analysis.dictionary.BinaryDictionary;
 import net.paoding.analysis.dictionary.Dictionary;
 import net.paoding.analysis.dictionary.HashBinaryDictionary;
@@ -23,18 +30,12 @@ import net.paoding.analysis.dictionary.support.detection.Detector;
 import net.paoding.analysis.dictionary.support.detection.DifferenceListener;
 import net.paoding.analysis.dictionary.support.filewords.FileWordsReader;
 import net.paoding.analysis.exception.PaodingAnalysisException;
+import net.paoding.analysis.ext.PaodingAnalyzerListener;
 import net.paoding.analysis.knife.CJKKnife;
 import net.paoding.analysis.knife.Dictionaries;
+
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
-
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 
 /**
  * 中文字典缓存根据地,为{@link CJKKnife}所用。<br>
@@ -51,7 +52,7 @@ public class CompiledFileDictionaries implements Dictionaries {
 
 	// -------------------------------------------------
 
-	private ESLogger log= Loggers.getLogger("paoding-analyzer");;
+	private static final ESLogger LOG = Loggers.getLogger(CompiledFileDictionaries.class);
 
 	// -------------------------------------------------
 
@@ -98,13 +99,14 @@ public class CompiledFileDictionaries implements Dictionaries {
 	protected String charsetName;
 	protected int maxWordLen;
 
+	private PaodingAnalyzerListener listener = null;
+
 	// ----------------------
 
 	public CompiledFileDictionaries() {
 	}
 
-	public CompiledFileDictionaries(String dicHome, String noiseCharactor,
-			String noiseWord, String unit, String confucianFamilyName,
+	public CompiledFileDictionaries(String dicHome, String noiseCharactor, String noiseWord, String unit, String confucianFamilyName,
 			String combinatorics, String charsetName, int maxWordLen) {
 		this.dicHome = dicHome;
 		this.noiseCharactor = noiseCharactor;
@@ -172,7 +174,7 @@ public class CompiledFileDictionaries implements Dictionaries {
 		this.maxWordLen = maxWordLen;
 	}
 
-    public void setLantinFllowedByCjk(String lantinFllowedByCjk) {
+	public void setLantinFllowedByCjk(String lantinFllowedByCjk) {
 		this.combinatorics = lantinFllowedByCjk;
 	}
 
@@ -190,8 +192,7 @@ public class CompiledFileDictionaries implements Dictionaries {
 	public synchronized Dictionary getVocabularyDictionary() {
 		if (vocabularyDictionary == null) {
 			// 大概有5639个字有词语，故取0x2fff=x^13>8000>8000*0.75=6000>5639
-			vocabularyDictionary = new HashBinaryDictionary(
-					getVocabularyWords(), 0x2fff, 0.75f);
+			vocabularyDictionary = new HashBinaryDictionary(getVocabularyWords(), 0x2fff, 0.75f);
 		}
 		return vocabularyDictionary;
 	}
@@ -203,8 +204,7 @@ public class CompiledFileDictionaries implements Dictionaries {
 	 */
 	public synchronized Dictionary getConfucianFamilyNamesDictionary() {
 		if (confucianFamilyNamesDictionary == null) {
-			confucianFamilyNamesDictionary = new BinaryDictionary(
-					getConfucianFamilyNames());
+			confucianFamilyNamesDictionary = new BinaryDictionary(getConfucianFamilyNames());
 		}
 		return confucianFamilyNamesDictionary;
 	}
@@ -216,8 +216,7 @@ public class CompiledFileDictionaries implements Dictionaries {
 	 */
 	public synchronized Dictionary getNoiseCharactorsDictionary() {
 		if (noiseCharactorsDictionary == null) {
-			noiseCharactorsDictionary = new HashBinaryDictionary(
-					getNoiseCharactors(), 256, 0.75f);
+			noiseCharactorsDictionary = new HashBinaryDictionary(getNoiseCharactors(), 256, 0.75f);
 		}
 		return noiseCharactorsDictionary;
 	}
@@ -248,8 +247,7 @@ public class CompiledFileDictionaries implements Dictionaries {
 
 	public synchronized Dictionary getCombinatoricsDictionary() {
 		if (combinatoricsDictionary == null) {
-			combinatoricsDictionary = new BinaryDictionary(
-					getCombinatoricsWords());
+			combinatoricsDictionary = new BinaryDictionary(getCombinatoricsWords());
 		}
 		return combinatoricsDictionary;
 	}
@@ -265,8 +263,7 @@ public class CompiledFileDictionaries implements Dictionaries {
 		detector.setFilter(null);
 		detector.setFilter(new FileFilter() {
 			public boolean accept(File pathname) {
-				return pathname.getPath().endsWith(".dic.compiled")
-						|| pathname.getPath().endsWith(".metadata");
+				return pathname.getPath().endsWith(".dic.compiled") || pathname.getPath().endsWith(".metadata");
 			}
 		});
 		detector.setLastSnapshot(detector.flash());
@@ -288,22 +285,26 @@ public class CompiledFileDictionaries implements Dictionaries {
 	// 以下为辅助性的方式-类私有或package私有
 
 	protected Word[] getDictionaryWords(String dicNameRelativeDicHome) {
-		File f = new File(this.dicHome, "/" + dicNameRelativeDicHome
-				+ ".dic.compiled");
+		File f = new File(this.dicHome, "/" + dicNameRelativeDicHome + ".dic.compiled");
 		if (!f.exists()) {
 			return new Word[0];
 		}
 		try {
-			Map map = FileWordsReader.readWords(f.getAbsolutePath(),
-					charsetName, maxWordLen, LinkedList.class, ".dic.compiled");
-			List wordsList = (List) map.values().iterator().next();
+			if (this.listener != null) {
+				this.listener.readCompileDic(f.getAbsolutePath());
+			}
+			Map<String, Collection<Word>> map = FileWordsReader.readWords(f.getAbsolutePath(), charsetName, maxWordLen, LinkedList.class,
+					".dic.compiled");
+			Collection<Word> wordsList = map.values().iterator().next();
+			if (this.listener != null) {
+				this.listener.readCompileDicFinished(f.getAbsolutePath(), wordsList);
+			}
 			return (Word[]) wordsList.toArray(new Word[wordsList.size()]);
 		} catch (IOException e) {
 			throw toRuntimeException(e);
 		}
 	}
-	
-	
+
 	protected Word[] getVocabularyWords() {
 		return getDictionaryWords("vocabulary");
 	}
@@ -332,5 +333,10 @@ public class CompiledFileDictionaries implements Dictionaries {
 
 	protected RuntimeException toRuntimeException(IOException e) {
 		return new PaodingAnalysisException(e);
+	}
+
+	public void setAnalyzerListener(PaodingAnalyzerListener listener) {
+		this.listener = listener;
+
 	}
 }

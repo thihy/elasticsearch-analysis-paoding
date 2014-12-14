@@ -17,6 +17,7 @@ package net.paoding.analysis.knife;
 
 import net.paoding.analysis.dictionary.Dictionary;
 import net.paoding.analysis.dictionary.support.detection.DifferenceListener;
+import net.paoding.analysis.ext.PaodingAnalyzerListener;
 
 /**
  * 中文字典缓存根据地,为{@link CJKKnife}所用。<br>
@@ -76,5 +77,10 @@ public interface Dictionaries {
 	 * @param l
 	 */
 	public void startDetecting(int interval, DifferenceListener l);
+	
+	
 	public void stopDetecting();
+	
+	
+	public abstract void setAnalyzerListener(PaodingAnalyzerListener listener);
 }

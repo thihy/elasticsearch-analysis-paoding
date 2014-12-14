@@ -33,9 +33,10 @@ import net.paoding.analysis.dictionary.support.detection.DifferenceListener;
 import net.paoding.analysis.dictionary.support.detection.ExtensionFileFilter;
 import net.paoding.analysis.dictionary.support.filewords.FileWordsReader;
 import net.paoding.analysis.exception.PaodingAnalysisException;
+import net.paoding.analysis.ext.PaodingAnalyzerListener;
+
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
-
 
 /**
  * 中文字典缓存根据地,为{@link CJKKnife}所用。<br>
@@ -52,7 +53,7 @@ public class FileDictionaries implements Dictionaries {
 
 	// -------------------------------------------------
 
-	private ESLogger log= Loggers.getLogger("paoding-analyzer");;
+	private final ESLogger log = Loggers.getLogger(this.getClass());
 
 	// -------------------------------------------------
 
@@ -90,7 +91,7 @@ public class FileDictionaries implements Dictionaries {
 
 	// -------------------------------------------------
 
-	protected Map/* <String, Set<String>> */allWords;
+	protected Map<String, Set<Word>> allWords;
 
 	protected String dicHome;
 	protected String skipPrefix;
@@ -102,6 +103,7 @@ public class FileDictionaries implements Dictionaries {
 	protected String charsetName;
 	protected int maxWordLen;
 
+	private PaodingAnalyzerListener listener = null;
 	// ----------------------
 
 	public FileDictionaries() {
@@ -317,9 +319,13 @@ public class FileDictionaries implements Dictionaries {
 		String dicName = dicPath.substring(0, index);
 		if (allWords != null) {
 			try {
-				Map/* <String, Set<String>> */temp = FileWordsReader
+				Map<String, Set<Word>> temp = FileWordsReader
 						.readWords(dicHome + dicPath, charsetName, maxWordLen);
-				allWords.put(dicName, temp.values().iterator().next());
+				Set<Word> conllec = temp.values().iterator().next();
+				if(this.listener != null){
+					this.listener.refreshDic(dicHome + dicPath, conllec);
+				}
+				allWords.put(dicName, conllec);
 			} catch (FileNotFoundException e) {
 				// 如果源文件已经被删除了，则表示该字典不要了
 				allWords.remove(dicName);
@@ -360,20 +366,41 @@ public class FileDictionaries implements Dictionaries {
 	// 以下为辅助性的方式-类私有或package私有
 
 	protected Word[] getVocabularyWords() {
-		Map/* <String, Set<Word>> */dics = loadAllWordsIfNecessary();
-		Set/* <Word> */set = null;
-		Iterator/* <Word> */iter = dics.keySet().iterator();
+		Map<String, Set<Word>> dics = loadAllWordsIfNecessary();
+		Set<Word> set = null;
+		/* 
+		 * 这样写效率更高 Modify: ZhenQin 12-03-13
+		 * 
+		 * 
+		Iterator<String> iter = dics.keySet().iterator();
 		while (iter.hasNext()) {
-			String name = (String) iter.next();
+			String name = iter.next();
 			if (isSkipForVacabulary(name)) {
 				continue;
 			}
-			Set/* <Word> */dic = (Set/* <Word> */) dics.get(name);
+			Set<Word> dic = dics.get(name);
 			if (set == null) {
-				set = new HashSet/* <Word> */(dic);
+				set = new HashSet<Word>(dic);
 			} else {
 				set.addAll(dic);
 			}
+		}
+		*/
+		Iterator<Map.Entry<String, Set<Word>>> iter = dics.entrySet().iterator();
+		while (iter.hasNext()) {
+			Map.Entry<String, Set<Word>> entry = iter.next();
+			if (isSkipForVacabulary(entry.getKey())) {
+				continue;
+			}
+			Set<Word> dic = entry.getValue();
+			if (set == null) {
+				set = new HashSet<Word>(dic);
+			} else {
+				set.addAll(dic);
+			}
+		}
+		if(this.listener != null){
+			this.listener.readDicFinished(dicHome, set);
 		}
 		Word[] words = (Word[]) set.toArray(new Word[set.size()]);
 		Arrays.sort(words);
@@ -401,14 +428,20 @@ public class FileDictionaries implements Dictionaries {
 	}
 
 	protected Word[] getDictionaryWords(String dicNameRelativeDicHome) {
-		Map dics;
+		Map<String, Set<Word>> dics;
+		String dicPath = dicHome + "/" + dicNameRelativeDicHome + ".dic";
 		try {
-			dics = FileWordsReader.readWords(dicHome + "/"
-					+ dicNameRelativeDicHome + ".dic", charsetName, maxWordLen);
+			if(this.listener != null){
+				this.listener.readDic(dicPath);
+			}
+			dics = FileWordsReader.readWords(dicPath, charsetName, maxWordLen);
 		} catch (IOException e) {
 			throw toRuntimeException(e);
 		}
-		Set/* <Word> */set = (Set/* <Word> */) dics.get(dicNameRelativeDicHome);
+		Set<Word> set = dics.get(dicNameRelativeDicHome);
+		if(this.listener != null){
+			this.listener.readDicFinished(dicPath, set);
+		}
 		Word[] words = (Word[]) set.toArray(new Word[set.size()]);
 		Arrays.sort(words);
 		return words;
@@ -420,10 +453,13 @@ public class FileDictionaries implements Dictionaries {
 	 * 读取字典安装目录及子孙目录下的字典文件；并以该字典相对安装目录的路径(包括该字典的文件名，但不包括扩展名)作为key。
 	 * 比如，如果字典安装在dic目录下，该目录下有division/china.dic，则该字典文件对应的key是"division/china"
 	 */
-	protected synchronized Map/* <String, Set<String>> */loadAllWordsIfNecessary() {
+	protected synchronized Map<String, Set<Word>> loadAllWordsIfNecessary() {
 		if (allWords == null) {
 			try {
 				log.info("loading dictionaries from " + dicHome);
+				if(this.listener != null){
+					this.listener.readDic(dicHome);
+				}
 				allWords = FileWordsReader.readWords(dicHome, charsetName, maxWordLen);
 				if (allWords.size() == 0) {
 					String message = "Not found any dictionary files, have you set the 'paoding.dic.home' right? ("
@@ -470,5 +506,10 @@ public class FileDictionaries implements Dictionaries {
 
 	protected RuntimeException toRuntimeException(IOException e) {
 		return new PaodingAnalysisException(e);
+	}
+
+	public void setAnalyzerListener(PaodingAnalyzerListener listener) {
+		this.listener = listener;
+		
 	}
 }

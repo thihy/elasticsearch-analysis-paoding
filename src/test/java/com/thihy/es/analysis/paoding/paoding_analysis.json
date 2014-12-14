@@ -1,0 +1,18 @@
+{
+   "index":{
+      "analysis":{
+         "analyzer":{
+            "paoding_1":{
+               "type":"paoding",
+               "mode":"max_length",
+               "dict":{
+               	"type":"file",
+               	"file":{
+               		"dir":"config/paoding/dic"
+               	}
+               }
+            }
+         }
+      }
+   }
+}

@@ -29,13 +29,13 @@ import org.elasticsearch.common.logging.Loggers;
 
 public class FakeKnife implements Knife, DictionariesWare {
 
+	private final ESLogger log = Loggers.getLogger(this.getClass());
+
 	private String name;
 
 	private int intParam;
 
 	private Inner inner = new Inner();
-
-    private ESLogger log= Loggers.getLogger("paoding-analyzer");;
 
 	public void setName(String name) {
 		this.name = name;
