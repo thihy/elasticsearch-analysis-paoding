@@ -14,6 +14,7 @@ import org.elasticsearch.index.Index;
 import org.elasticsearch.index.analysis.AbstractIndexAnalyzerProvider;
 import org.elasticsearch.index.settings.IndexSettings;
 
+import com.thihy.es.analysis.paoding.dict.DictionariesLoadContext;
 import com.thihy.es.analysis.paoding.dict.DictionariesService;
 import com.thihy.es.analysis.paoding.knife.KnifesService;
 
@@ -35,7 +36,9 @@ public class ThihyPaodingAnalyzerProvider extends AbstractIndexAnalyzerProvider<
 		Settings dictSettings = settings.getAsSettings("dict." + dictType);
 		String[] knifeTypes = settings.getAsArray("knife", DEFAULT_KNIFE_TYPES);
 		// 2.1 create  dictionaries
-		Dictionaries dictionaries = dictionariesService.load(dictType, dictSettings);
+		DictionariesLoadContext dictionariesLoadContext = DictionariesLoadContext.builder().index(index, indexSettings).analyzerOwner(name)
+				.dictSettings(dictSettings).build();
+		Dictionaries dictionaries = dictionariesService.load(dictType, dictionariesLoadContext);
 		// 2.2 create knives
 		Knife[] knives = new Knife[knifeTypes.length];
 		for (int knifeNo = 0; knifeNo < knifeTypes.length; knifeNo++) {

@@ -9,6 +9,7 @@ import org.elasticsearch.common.Preconditions;
 import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
+import org.elasticsearch.index.Index;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -22,11 +23,11 @@ public class DictionariesService extends AbstractComponent {
 		this.dictionariesLoaders = ImmutableMap.copyOf(dictionariesLoaders);
 	}
 
-	public Dictionaries load(String type, Settings settings) throws IOException {
+	public Dictionaries load(String type, DictionariesLoadContext context) throws IOException {
 		DictionariesLoaderFactory dictionariesLoaderFactory = dictionariesLoaders.get(type);
 		Preconditions.checkArgument(dictionariesLoaderFactory != null, "The type [{}] does not exist. It should be any of {}.", type,
 				dictionariesLoaders.keySet());
-		DictionariesLoader dictionariesLoader = dictionariesLoaderFactory.create(settings);
+		DictionariesLoader dictionariesLoader = dictionariesLoaderFactory.create(context);
 		return dictionariesLoader.load();
 	}
 

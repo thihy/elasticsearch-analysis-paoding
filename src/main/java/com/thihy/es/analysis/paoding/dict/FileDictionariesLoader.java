@@ -54,8 +54,9 @@ public class FileDictionariesLoader implements DictionariesLoader {
 	private final boolean failIfError;
 
 	@Inject
-	public FileDictionariesLoader(DictionaryLoader dictionaryLoader, @Assisted Settings settings) {
+	public FileDictionariesLoader(DictionaryLoader dictionaryLoader, @Assisted DictionariesLoadContext context) {
 		super();
+		Settings settings = context.getDictSettings();
 		this.dictionaryLoader = dictionaryLoader;
 		this.failIfError = settings.getAsBoolean("fail_if_error", settings.getAsBoolean("failIfError", DEFAULT_FAIL_IF_ERROR));
 		this.path = settings.get("path");
