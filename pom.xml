@@ -1,21 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<parent>
+		<groupId>org.sonatype.oss</groupId>
+		<artifactId>oss-parent</artifactId>
+		<version>7</version>
+	</parent>
+
 	<groupId>com.thihy</groupId>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>elasticsearch-analysis-paoding</artifactId>
-	<name>elasticsearch-analysis-paoding</name>
-	<version>1.4.1.0</version>
+	<version>1.4.1.1-SNAPSHOT</version>
 	<packaging>jar</packaging>
-	<description>Paoding Analysis Plugin for ElasticSearch</description>
+
+	<name>Paoding Analysis for ElasticSearch</name>
+	<description>Paoding Analysis for ElasticSearch.</description>
+	<url>https://github.com/thihy/elasticsearch-analysis-paoding</url>
 	<inceptionYear>2014</inceptionYear>
+
+
 	<licenses>
 		<license>
 			<name>The Apache Software License, Version 2.0</name>
 			<url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
-			<distribution>repo</distribution>
 		</license>
 	</licenses>
+
+	<developers>
+		<developer>
+			<name>thihy</name>
+			<email>my2003cat@gmail.com</email>
+			<organization>thihy</organization>
+			<organizationUrl>https://github.com/thihy</organizationUrl>
+		</developer>
+	</developers>
+	<scm>
+		<connection>scm:git:git@github.com:thihy/elasticsearch-analysis-paoding.git</connection>
+		<developerConnection>scm:git:git@github.com:thihy/elasticsearch-analysis-paoding.git</developerConnection>
+		<url>git@github.com:thihy/elasticsearch-analysis-paoding.git</url>
+	</scm>
+	<repositories>
+		<repository>
+			<id>Codehaus Snapshots</id>
+			<url>http://repository.codehaus.org/</url>
+		</repository>
+	</repositories>
 
 	<properties>
 		<elasticsearch.version>1.4.1</elasticsearch.version>
