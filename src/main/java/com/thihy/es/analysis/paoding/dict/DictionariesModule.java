@@ -3,11 +3,10 @@ package com.thihy.es.analysis.paoding.dict;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.inject.assistedinject.FactoryProvider;
 import org.elasticsearch.common.inject.multibindings.MapBinder;
-
-import com.google.common.collect.Maps;
 
 public class DictionariesModule extends AbstractModule {
 

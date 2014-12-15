@@ -8,7 +8,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
-import java.nio.file.Paths;
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
@@ -18,14 +17,13 @@ import net.paoding.analysis.dictionary.Dictionary;
 import net.paoding.analysis.knife.Dictionaries;
 
 import org.elasticsearch.common.Classes;
+import org.elasticsearch.common.collect.ImmutableMap;
+import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.inject.assistedinject.Assisted;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
 import org.elasticsearch.common.settings.Settings;
-
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Maps;
 
 public class FileDictionariesLoader implements DictionariesLoader {
 	private static final ESLogger LOG = Loggers.getLogger(FileDictionariesLoader.class);

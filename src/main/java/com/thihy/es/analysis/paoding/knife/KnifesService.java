@@ -6,11 +6,10 @@ import net.paoding.analysis.knife.Dictionaries;
 import net.paoding.analysis.knife.Knife;
 
 import org.elasticsearch.common.Preconditions;
+import org.elasticsearch.common.collect.ImmutableMap;
 import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
-
-import com.google.common.collect.ImmutableMap;
 
 public class KnifesService extends AbstractComponent {
 

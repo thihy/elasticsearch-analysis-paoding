@@ -3,10 +3,9 @@ package com.thihy.es.analysis.paoding.knife;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.inject.AbstractModule;
 import org.elasticsearch.common.inject.multibindings.MapBinder;
-
-import com.google.common.collect.Maps;
 
 public class KnifesModule extends AbstractModule {
 	private final Map<String, Class<? extends KnifeFactory>> knifes = Maps.newHashMap();

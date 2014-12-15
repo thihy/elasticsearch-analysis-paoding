@@ -2,11 +2,11 @@ package com.thihy.es.analysis.paoding;
 
 import java.util.Collection;
 
+import org.elasticsearch.common.collect.ImmutableList;
 import org.elasticsearch.common.inject.Module;
 import org.elasticsearch.index.analysis.AnalysisModule;
 import org.elasticsearch.plugins.AbstractPlugin;
 
-import com.google.common.collect.ImmutableList;
 import com.thihy.es.analysis.paoding.dict.DictionariesModule;
 import com.thihy.es.analysis.paoding.knife.KnifesModule;
 

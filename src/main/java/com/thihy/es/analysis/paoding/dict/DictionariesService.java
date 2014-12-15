@@ -6,12 +6,10 @@ import java.util.Map;
 import net.paoding.analysis.knife.Dictionaries;
 
 import org.elasticsearch.common.Preconditions;
+import org.elasticsearch.common.collect.ImmutableMap;
 import org.elasticsearch.common.component.AbstractComponent;
 import org.elasticsearch.common.inject.Inject;
 import org.elasticsearch.common.settings.Settings;
-import org.elasticsearch.index.Index;
-
-import com.google.common.collect.ImmutableMap;
 
 public class DictionariesService extends AbstractComponent {
 

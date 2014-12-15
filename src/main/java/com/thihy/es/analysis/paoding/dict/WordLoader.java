@@ -7,7 +7,7 @@ import java.util.List;
 
 import net.paoding.analysis.dictionary.Word;
 
-import com.google.common.collect.Lists;
+import org.elasticsearch.common.collect.Lists;
 
 /**
  * 从输入流中加载单词列表
