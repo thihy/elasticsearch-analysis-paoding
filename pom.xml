@@ -9,7 +9,7 @@
 	<groupId>com.thihy</groupId>
 	<modelVersion>4.0.0</modelVersion>
 	<artifactId>elasticsearch-analysis-paoding</artifactId>
-	<version>1.4.1.2-SNAPSHOT</version>
+	<version>1.4.1.2</version>
 	<packaging>jar</packaging>
 
 	<name>Paoding Analysis for ElasticSearch</name>
