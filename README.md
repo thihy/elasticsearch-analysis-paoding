@@ -10,10 +10,10 @@ In order to install the plugin, simply run: `bin/plugin -install thihy/elasticse
     --------------------------------------------------
     | master                        | master         |
     --------------------------------------------------
-    | 1.4.1.0                       | 1.4.x          |
+    | 1.4.1.2                       | 1.4.x          |
     --------------------------------------------------
 
-The plugin includes `paoding` analyzer and `paoding` tokenizer.
+The plugin includes `paoding` analyzer.
 
 optional config `mode` can be set to `most_tokens` or `max_length`
 
@@ -41,4 +41,15 @@ curl -XPUT http://localhost:9200/thihy/ -d'
       }
    }
 }'
+```
+
+Maven Usage
+----------------------------------
+
+```
+<dependency>
+    <groupId>com.thihy</groupId>
+    <artifactId>elasticsearch-analysis-paoding</artifactId>
+    <version>1.4.1.2</version>
+</dependency>
 ```
