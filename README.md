@@ -3,7 +3,7 @@ Paoding Analysis for ElasticSearch
 
 The Paoding Analysis plugin integrates Paoding(http://code.google.com/p/paoding/) module into elasticsearch.
 
-In order to install the plugin, simply run: `bin/plugin -install thihy/elasticsearch-analysis-paoding`.
+In order to install the plugin, simply run: `bin/plugin -install com.thihy/elasticsearch-analysis-paoding/1.4.1.2`.
 
     --------------------------------------------------
     | Paoding    Analysis Plugin    | ElasticSearch  |
