@@ -29,5 +29,6 @@ public class AnalysisPaodingPlugin extends AbstractPlugin {
 
 	public void onModule(AnalysisModule module) {
 		module.addAnalyzer("paoding", ThihyPaodingAnalyzerProvider.class);
+		module.addTokenizer("paoding", ThihyPaodingTokenizerProvider.class);
 	}
 }
