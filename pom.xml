@@ -46,7 +46,7 @@
 	</repositories>
 
 	<properties>
-		<elasticsearch.version>1.4.1</elasticsearch.version>
+		<elasticsearch.version>1.4.2</elasticsearch.version>
 		<lucene.maven.version>4.10.2</lucene.maven.version>
 	</properties>
 
