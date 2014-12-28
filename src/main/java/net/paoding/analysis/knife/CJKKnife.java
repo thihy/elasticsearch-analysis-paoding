@@ -145,8 +145,8 @@ public class CJKKnife implements Knife, DictionariesWare {
 				 * Fix issue 50: 中文数字解析问题 
 				 */				
 				//先搜索连续的中文数字
-				curSearch = searchNumber(beef, curSearchOffset, curSearchLength);
-				if (curSearch.isHit()) {
+				SearchNumberHit curNumberSearch = searchNumber(beef, curSearchOffset, curSearchLength);
+				if (curNumberSearch!= null && curNumberSearch.isHit()) {
 					if (isolatedOffset >= 0) {
 						dissectIsolated(collector, beef, isolatedOffset,
 								curSearchOffset);
@@ -154,8 +154,8 @@ public class CJKKnife implements Knife, DictionariesWare {
 					}
 					
 					// trick: 用index返回中文数字实际结束位置
-					int numberSearchEnd = curSearch.getIndex();
-					int numberSearchLength = curSearch.getIndex() - curSearchOffset;
+					int numberSearchEnd = curNumberSearch.end;
+					int numberSearchLength =curNumberSearch.end- curSearchOffset;
 
 					// 1.2)
 					// 更新最大结束位置
@@ -170,15 +170,15 @@ public class CJKKnife implements Knife, DictionariesWare {
 						maxDicWordLength = numberSearchLength;
 					}
 
-					Word word = curSearch.getWord();
+					Word word = curNumberSearch.hit.getWord();
 					if (!word.isNoise()) {
 						dissectIsolated(collector, beef, curSearchOffset,
-								curSearch.getIndex());
+								curNumberSearch.end);
 					}
 					curSearchOffset = numberSearchEnd - 1;
 					break;
 				}
-				if (curSearch.isUnclosed()) {
+				if (curNumberSearch!= null && curNumberSearch.isUnclosed()) {
 					continue;
 				}
 
@@ -276,7 +276,7 @@ public class CJKKnife implements Knife, DictionariesWare {
 
 	// -------------------------------------------------
 
-	protected Hit searchNumber(CharSequence input, int offset, int count) {
+	protected SearchNumberHit searchNumber(CharSequence input, int offset, int count) {
 		int endPos = -1;
 		StringBuilder nums = new StringBuilder();
 		for (int i = 0; i < count; i++) {
@@ -289,20 +289,20 @@ public class CJKKnife implements Knife, DictionariesWare {
 		}
 		//没有中文数字了
 		if (endPos == -1) {
-			return Hit.UNDEFINED;
+			return null;
 		}
 		//中文数字还没结束，后面可能还有
 		if (endPos == count - 1) {
-			return new Hit(Hit.UNCLOSED_INDEX, null, null);
+			return new SearchNumberHit(-1,null);
 		}
 		//只有一个中文数字，不是连续的，不处理
 		if (endPos == 0) {
-			return Hit.UNDEFINED;
+			return null;
 		}
 		
 		//部分含有中文数字，取这一部分出来
 		//trick: 我们这里用index参数传递该部分中文的结束位置
-		return new Hit(offset + endPos + 1, new Word(nums.toString()), null);
+		return new SearchNumberHit(offset+endPos+1,Hit.exactHit(new Word(nums.toString()),null));
 	}
 
 	/**
@@ -550,4 +550,22 @@ public class CJKKnife implements Knife, DictionariesWare {
 		return false;
 	}
 
+
+	static class SearchNumberHit {
+		public final int end;
+		public final Hit hit;
+
+		public SearchNumberHit(int end, Hit hit) {
+			this.end = end;
+			this.hit = hit;
+		}
+
+		public boolean isHit() {
+			return this.hit != null && this.hit.isHit();
+		}
+
+		public boolean isUnclosed() {
+			return this.hit == null || this.hit.isUnclosed();
+		}
+	}
 }

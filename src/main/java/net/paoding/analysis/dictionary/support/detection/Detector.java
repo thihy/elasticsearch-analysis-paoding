@@ -18,7 +18,6 @@ package net.paoding.analysis.dictionary.support.detection;
 import java.io.File;
 import java.io.FileFilter;
 
-import net.paoding.analysis.analyzer.impl.CompiledFileDictionaries;
 
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;

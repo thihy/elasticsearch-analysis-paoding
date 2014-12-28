@@ -41,8 +41,7 @@ import org.apache.lucene.analysis.tokenattributes.PositionIncrementAttribute;
  * @see Knife
  * @see Paoding
  * @see Tokenizer
- * @see PaodingAnalyzer
- * 
+ * å
  * @see Collector
  * @see TokenCollector
  * @see net.paoding.analysis.analyzer.impl.MaxWordLengthTokenCollector

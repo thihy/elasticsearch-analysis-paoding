@@ -23,11 +23,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-import net.paoding.analysis.dictionary.BinaryDictionary;
-import net.paoding.analysis.dictionary.Dictionary;
-import net.paoding.analysis.dictionary.HashBinaryDictionary;
-import net.paoding.analysis.dictionary.Hit;
-import net.paoding.analysis.dictionary.Word;
+import net.paoding.analysis.dictionary.*;
 import net.paoding.analysis.dictionary.support.detection.Detector;
 import net.paoding.analysis.dictionary.support.detection.DifferenceListener;
 import net.paoding.analysis.dictionary.support.detection.ExtensionFileFilter;
@@ -41,12 +37,10 @@ import org.elasticsearch.common.logging.Loggers;
 /**
  * 中文字典缓存根据地,为{@link CJKKnife}所用。<br>
  * 从本对象可以获取中文需要的相关字典。包括词汇表、姓氏表、计量单位表、忽略的词或单字等。
- * <p>
- * 
+ * <p/>
+ *
  * @author Zhiliang Wang [qieqie.wang@gmail.com]
- * 
  * @see CJKKnife
- * 
  * @since 1.0
  */
 public class FileDictionaries implements Dictionaries {
@@ -69,7 +63,6 @@ public class FileDictionaries implements Dictionaries {
 
 	/**
 	 * 姓氏字典
-	 * 
 	 */
 	protected Dictionary confucianFamilyNamesDictionary;
 
@@ -80,7 +73,6 @@ public class FileDictionaries implements Dictionaries {
 
 	/**
 	 * 忽略的词语
-	 * 
 	 */
 	protected Dictionary noiseWordsDictionary;
 
@@ -110,8 +102,8 @@ public class FileDictionaries implements Dictionaries {
 	}
 
 	public FileDictionaries(String dicHome, String skipPrefix,
-			String noiseCharactor, String noiseWord, String unit,
-			String confucianFamilyName, String combinatorics, String charsetName, int maxWordLen) {
+							String noiseCharactor, String noiseWord, String unit,
+							String confucianFamilyName, String combinatorics, String charsetName, int maxWordLen) {
 		this.dicHome = dicHome;
 		this.skipPrefix = skipPrefix;
 		this.noiseCharactor = noiseCharactor;
@@ -199,36 +191,36 @@ public class FileDictionaries implements Dictionaries {
 
 	/**
 	 * 词汇表字典
-	 * 
+	 *
 	 * @return
 	 */
 	public synchronized Dictionary getVocabularyDictionary() {
 		if (vocabularyDictionary == null) {
 			// 大概有5639个字有词语，故取0x2fff=x^13>8000>8000*0.75=6000>5639
-			vocabularyDictionary = new HashBinaryDictionary(
-					getVocabularyWords(), 0x2fff, 0.75f);
-			Dictionary noiseWordsDic = getNoiseWordsDictionary();
-			for (int i = 0; i < noiseWordsDic.size(); i++) {
-				Hit hit = vocabularyDictionary.search(noiseWordsDic.get(i), 0, noiseWordsDic.get(i).length());
+			vocabularyDictionary = new FstDictionary(
+					getVocabularyWords());
+			Word[] noiseWordsDic = getNoiseWords();
+			for (Word noiseWord : noiseWordsDic) {
+				Hit hit = vocabularyDictionary.search(noiseWord, 0, noiseWord.length());
 				if (hit.isHit()) {
 					hit.getWord().setNoiseWord();
 				}
 			}
-			Dictionary noiseCharactorsDic = getNoiseCharactorsDictionary();
-			for (int i = 0; i < noiseCharactorsDic.size(); i++) {
-				Hit hit = vocabularyDictionary.search(noiseCharactorsDic.get(i), 0, noiseCharactorsDic.get(i).length());
+			Word[] noiseCharactors = getNoiseCharactors();
+			for (Word noiseCharactor : noiseCharactors) {
+				Hit hit = vocabularyDictionary.search(noiseCharactor, 0, noiseCharactor.length());
 				if (hit.isHit()) {
 					hit.getWord().setNoiseCharactor();
 				}
 			}
-			
+
 		}
 		return vocabularyDictionary;
 	}
 
 	/**
 	 * 姓氏字典
-	 * 
+	 *
 	 * @return
 	 */
 	public synchronized Dictionary getConfucianFamilyNamesDictionary() {
@@ -241,20 +233,20 @@ public class FileDictionaries implements Dictionaries {
 
 	/**
 	 * 忽略的词语
-	 * 
+	 *
 	 * @return
 	 */
 	public synchronized Dictionary getNoiseCharactorsDictionary() {
 		if (noiseCharactorsDictionary == null) {
-			noiseCharactorsDictionary = new HashBinaryDictionary(
-					getNoiseCharactors(), 256, 0.75f);
+			noiseCharactorsDictionary = new FstDictionary(
+					getNoiseCharactors());
 		}
 		return noiseCharactorsDictionary;
 	}
 
 	/**
 	 * 忽略的单字
-	 * 
+	 *
 	 * @return
 	 */
 	public synchronized Dictionary getNoiseWordsDictionary() {
@@ -266,12 +258,12 @@ public class FileDictionaries implements Dictionaries {
 
 	/**
 	 * 计量单位
-	 * 
+	 *
 	 * @return
 	 */
 	public synchronized Dictionary getUnitsDictionary() {
 		if (unitsDictionary == null) {
-			unitsDictionary = new HashBinaryDictionary(getUnits(), 1024, 0.75f);
+			unitsDictionary = new FstDictionary(getUnits());
 		}
 		return unitsDictionary;
 	}
@@ -284,9 +276,9 @@ public class FileDictionaries implements Dictionaries {
 		return combinatoricsDictionary;
 	}
 
-	
+
 	private Detector detector;
-	
+
 	public synchronized void startDetecting(int interval, DifferenceListener l) {
 		if (detector != null || interval < 0) {
 			return;
@@ -309,10 +301,9 @@ public class FileDictionaries implements Dictionaries {
 		detector.setStop();
 		detector = null;
 	}
-	
+
 	/**
-	 * 
-	 * @param dicName
+	 * @param dicPath
 	 */
 	protected synchronized void refreshDicWords(String dicPath) {
 		int index = dicPath.lastIndexOf(".dic");
@@ -322,7 +313,7 @@ public class FileDictionaries implements Dictionaries {
 				Map<String, Set<Word>> temp = FileWordsReader
 						.readWords(dicHome + dicPath, charsetName, maxWordLen);
 				Set<Word> conllec = temp.values().iterator().next();
-				if(this.listener != null){
+				if (this.listener != null) {
 					this.listener.refreshDic(dicHome + dicPath, conllec);
 				}
 				allWords.put(dicName, conllec);
@@ -399,7 +390,7 @@ public class FileDictionaries implements Dictionaries {
 				set.addAll(dic);
 			}
 		}
-		if(this.listener != null){
+		if (this.listener != null) {
 			this.listener.readDicFinished(dicHome, set);
 		}
 		Word[] words = (Word[]) set.toArray(new Word[set.size()]);
@@ -431,7 +422,7 @@ public class FileDictionaries implements Dictionaries {
 		Map<String, Set<Word>> dics;
 		String dicPath = dicHome + "/" + dicNameRelativeDicHome + ".dic";
 		try {
-			if(this.listener != null){
+			if (this.listener != null) {
 				this.listener.readDic(dicPath);
 			}
 			dics = FileWordsReader.readWords(dicPath, charsetName, maxWordLen);
@@ -439,7 +430,7 @@ public class FileDictionaries implements Dictionaries {
 			throw toRuntimeException(e);
 		}
 		Set<Word> set = dics.get(dicNameRelativeDicHome);
-		if(this.listener != null){
+		if (this.listener != null) {
 			this.listener.readDicFinished(dicPath, set);
 		}
 		Word[] words = (Word[]) set.toArray(new Word[set.size()]);
@@ -457,7 +448,7 @@ public class FileDictionaries implements Dictionaries {
 		if (allWords == null) {
 			try {
 				log.info("loading dictionaries from " + dicHome);
-				if(this.listener != null){
+				if (this.listener != null) {
 					this.listener.readDic(dicHome);
 				}
 				allWords = FileWordsReader.readWords(dicHome, charsetName, maxWordLen);
@@ -510,6 +501,6 @@ public class FileDictionaries implements Dictionaries {
 
 	public void setAnalyzerListener(PaodingAnalyzerListener listener) {
 		this.listener = listener;
-		
+
 	}
 }

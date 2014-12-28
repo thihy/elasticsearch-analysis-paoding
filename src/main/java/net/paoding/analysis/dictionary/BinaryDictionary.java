@@ -15,16 +15,16 @@
  */
 package net.paoding.analysis.dictionary;
 
+import net.paoding.analysis.dictionary.support.ListDictionary;
+
 /**
  * Dictionary的二叉查找实现。
- * <p>
- * 
+ * <p/>
+ *
  * @author Zhiliang Wang [qieqie.wang@gmail.com]
- * 
  * @since 1.0
- * 
  */
-public class BinaryDictionary implements Dictionary {
+public class BinaryDictionary implements ListDictionary {
 
 	// -------------------------------------------------
 
@@ -38,10 +38,9 @@ public class BinaryDictionary implements Dictionary {
 
 	/**
 	 * 以一组升序排列的词语构造二叉查找字典
-	 * <p>
-	 * 
-	 * @param ascWords
-	 *            升序排列词语
+	 * <p/>
+	 *
+	 * @param ascWords 升序排列词语
 	 */
 	public BinaryDictionary(Word[] ascWords) {
 		this(ascWords, 0, ascWords.length);
@@ -80,9 +79,9 @@ public class BinaryDictionary implements Dictionary {
 				// word);
 				int nextWordIndex = pointer + 1;
 				if (nextWordIndex >= ascWords.length) {
-					return new Hit(pointer, word, null);
+					return Hit.exactHit(word, null);
 				} else {
-					return new Hit(pointer, word, ascWords[nextWordIndex]);
+					return Hit.exactHit(word, ascWords[nextWordIndex]);
 				}
 			}
 			if (relation < 0)
@@ -105,12 +104,12 @@ public class BinaryDictionary implements Dictionary {
 				asPrex = false;
 			}
 		}
-		return asPrex ? new Hit(Hit.UNCLOSED_INDEX, null, nextWord)
+		return asPrex ? Hit.prefixHit(nextWord)
 				: Hit.UNDEFINED;
 	}
 
 	public static int compare(CharSequence one, int begin, int count,
-			CharSequence theOther) {
+							  CharSequence theOther) {
 		for (int i = begin, j = 0; i < one.length()
 				&& j < Math.min(theOther.length(), count); i++, j++) {
 			if (one.charAt(i) > theOther.charAt(j)) {

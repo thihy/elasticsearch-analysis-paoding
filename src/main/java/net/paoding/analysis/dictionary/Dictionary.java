@@ -15,6 +15,8 @@
  */
 package net.paoding.analysis.dictionary;
 
+import java.io.IOException;
+
 /**
  * Dictionary是一个只读字典，用于查找是否包含某个词语，以及相关信息。
  * <p>
@@ -29,21 +31,6 @@ package net.paoding.analysis.dictionary;
  */
 public interface Dictionary {
 
-	/**
-	 * 返回字典中词语数>=0
-	 * 
-	 * @return
-	 */
-	public int size();
-
-	/**
-	 * 返回给定位置的词语
-	 * 
-	 * @param index
-	 *            0,1,2,...,size-1
-	 * @return
-	 */
-	public Word get(int index);
 
 	/**
 	 * 搜索词典是否收集input[offset]到input[offset+count-1]之间字符串(包含边界)的词。<br>
