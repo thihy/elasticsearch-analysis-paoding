@@ -88,6 +88,8 @@ public final class PaodingTokenizer extends Tokenizer implements Collector {
 	 * 
 	 */
 	private int dissected;
+	
+	private Token lastToken;
 
 	/**
 	 * 用于分解beef中的文本字符，由PaodingAnalyzer提供
@@ -202,12 +204,24 @@ public final class PaodingTokenizer extends Tokenizer implements Collector {
 			termAtt.setEmpty();
 			termAtt.append(token.charSequence());
 			offsetAtt.setOffset(correctOffset(token.startOffset()), correctOffset(token.endOffset()));
-			positionIncrementAttribute.setPositionIncrement(token.endOffset());
+			positionIncrementAttribute.setPositionIncrement(genPosInc(token));
+			
+			lastToken = token;
 			return true;
 		}
 		return tokenIteractor.hasNext();
 	}
-
+	
+	private int genPosInc(Token token){
+		if(lastToken == null){
+			return 1;
+		}
+		if(lastToken.startOffset() >= token.startOffset()){
+			return 0;
+		}
+		return 1;
+	}
+	
 	@Override
 	public void reset() throws IOException {
 		super.reset();
@@ -215,5 +229,8 @@ public final class PaodingTokenizer extends Tokenizer implements Collector {
 		inputLength = 0;
 		tokenCollector.clear();
 		tokenIteractor = null;
+		dissected = 0;
+		beef.set(0, 0);
+		lastToken = null;
 	}
 }

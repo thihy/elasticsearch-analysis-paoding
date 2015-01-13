@@ -11,6 +11,16 @@
                		"dir":"config/paoding/dic"
                	}
                }
+            },
+            "paoding_2":{
+              "type":"paoding",
+              "mode":"most_tokens",
+              "dict":{
+                "type":"file",
+                "file":{
+                  "dir":"config/paoding/dic"
+                }
+              }
             }
          }
       }

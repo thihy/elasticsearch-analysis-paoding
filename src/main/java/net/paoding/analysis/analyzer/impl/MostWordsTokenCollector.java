@@ -16,6 +16,7 @@
 package net.paoding.analysis.analyzer.impl;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import net.paoding.analysis.analyzer.TokenCollector;
 import net.paoding.analysis.knife.Token;
@@ -26,15 +27,13 @@ import net.paoding.analysis.knife.Token;
  * 
  * @since 1.1
  */
-public class MostWordsTokenCollector implements TokenCollector, Iterator<Token> {
+public class MostWordsTokenCollector implements TokenCollector {
 
-	private LinkedToken firstToken;
-	private LinkedToken lastToken;
+	private final LinkedList<Token> queue = new LinkedList<>();
 
 	@Override
 	public void clear() {
-		this.firstToken = null;
-		this.lastToken = null;
+		queue.clear();
 	}
 
 	/**
@@ -43,80 +42,23 @@ public class MostWordsTokenCollector implements TokenCollector, Iterator<Token> 
 	 * 
 	 */
 	public void collect(String word, int begin, int end) {
-		LinkedToken tokenToAdd = new LinkedToken(word, begin, end);
-		if (firstToken == null) {
-			firstToken = tokenToAdd;
-			lastToken = tokenToAdd;
-			return;
-		}
-		if (tokenToAdd.compareTo(lastToken) > 0) {
-			tokenToAdd.pre = lastToken;
-			lastToken.next = tokenToAdd;
-			lastToken = tokenToAdd;
-			//
-		} else {
-			LinkedToken curTokenToTry = lastToken.pre;
-			while (curTokenToTry != null && tokenToAdd.compareTo(curTokenToTry) < 0) {
-				curTokenToTry = curTokenToTry.pre;
-			}
-			if (curTokenToTry == null) {
-				firstToken.pre = tokenToAdd;
-				tokenToAdd.next = firstToken;
-				firstToken = tokenToAdd;
-			} else {
-				tokenToAdd.next = curTokenToTry.next;
-				curTokenToTry.next.pre = tokenToAdd;
-				tokenToAdd.pre = curTokenToTry;
-				curTokenToTry.next = tokenToAdd;
-
+		Token token = new Token(word, begin, end);
+		Token lastToken = queue.isEmpty() ? null : queue.getLast();
+		if (lastToken != null) {
+			assert lastToken.startOffset() <= token.startOffset();
+			if (lastToken.startOffset() == token.startOffset()) {
+				assert lastToken.endOffset() <= token.endOffset();
+				if (lastToken.endOffset() == token.endOffset()) {
+					// same range, skip
+					return;
+				}
 			}
 		}
+		queue.add(token);
 	}
 
-	private LinkedToken nextLinkedToken;
-
+	@Override
 	public Iterator<Token> iterator() {
-		nextLinkedToken = firstToken;
-		firstToken = null;
-		return this;
+		return queue.iterator();
 	}
-
-	public boolean hasNext() {
-		return nextLinkedToken != null;
-	}
-
-	public Token next() {
-		LinkedToken ret = nextLinkedToken;
-		nextLinkedToken = nextLinkedToken.next;
-		return ret;
-	}
-
-	public void remove() {
-
-	}
-
-	private static class LinkedToken extends Token implements Comparable<LinkedToken> {
-		/**
-		 * 
-		 */
-		private static final long serialVersionUID = 118708L;
-
-		public LinkedToken pre;
-		public LinkedToken next;
-
-		public LinkedToken(String word, int begin, int end) {
-			super(word, begin, end);
-		}
-
-		public int compareTo(LinkedToken obj) {
-			// 简单/单单/简简单单/
-			if (this.endOffset() > obj.endOffset())
-				return 1;
-			if (this.endOffset() == obj.endOffset()) {
-				return obj.startOffset() - this.startOffset();
-			}
-			return -1;
-		}
-	}
-
 }
