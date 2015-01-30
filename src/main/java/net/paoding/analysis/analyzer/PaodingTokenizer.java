@@ -193,6 +193,7 @@ public final class PaodingTokenizer extends Tokenizer implements Collector {
 				// offset -= remainning;
 				dissected = 0;
 			}
+			tokenCollector.clear();
 			dissected = knife.dissect(this, beef, dissected);
 			// offset += read;// !!!
 			tokenIteractor = tokenCollector.iterator();

@@ -2,6 +2,7 @@ package com.thihy.es.analysis.paoding;
 
 import java.io.IOException;
 
+import org.apache.lucene.analysis.TokenStream;
 import org.elasticsearch.index.analysis.AnalysisService;
 import org.elasticsearch.index.analysis.NamedAnalyzer;
 import org.elasticsearch.test.ElasticsearchTokenStreamTestCase;
@@ -68,6 +69,28 @@ public class PaodingAnalyzerTests extends ElasticsearchTokenStreamTestCase {
 				new int[] { 0, 0, 2, 4, 6, 6, 7, 7, 8, 8 },//startOffsets
 				new int[] { 1, 2, 4, 5, 7, 8, 9, 10, 10, 11 }//endOffsets
 		);
+	}
+
+	@Test
+	@AllowConcurrentEvents
+	public void testLongText() throws IOException {
+		StringBuilder buf = new StringBuilder();
+		int expectedCount = 0;
+		for (int i = 0; i < random().nextInt(1024) + 1; ++i) {
+			buf.append(" ");
+			expectedCount++;
+			for (int j = 0; j < 5; ++j) {
+				buf.append("a");
+			}
+		}
+		TokenStream ts = paoding_most_tokens.tokenStream("field", buf.toString());
+		ts.reset();
+		int count = 0;
+		while (ts.incrementToken()) {
+			count++;
+		}
+		ts.close();
+		assertEquals(expectedCount, count);
 	}
 
 }
