@@ -104,13 +104,13 @@ public class FileDictionaries implements Dictionaries {
 	protected int maxWordLen;
 
 	private PaodingAnalyzerListener listener = null;
+
 	// ----------------------
 
 	public FileDictionaries() {
 	}
 
-	public FileDictionaries(String dicHome, String skipPrefix,
-			String noiseCharactor, String noiseWord, String unit,
+	public FileDictionaries(String dicHome, String skipPrefix, String noiseCharactor, String noiseWord, String unit,
 			String confucianFamilyName, String combinatorics, String charsetName, int maxWordLen) {
 		this.dicHome = dicHome;
 		this.skipPrefix = skipPrefix;
@@ -205,8 +205,7 @@ public class FileDictionaries implements Dictionaries {
 	public synchronized Dictionary getVocabularyDictionary() {
 		if (vocabularyDictionary == null) {
 			// 大概有5639个字有词语，故取0x2fff=x^13>8000>8000*0.75=6000>5639
-			vocabularyDictionary = new HashBinaryDictionary(
-					getVocabularyWords(), 0x2fff, 0.75f);
+			vocabularyDictionary = new HashBinaryDictionary(getVocabularyWords(), 0x2fff, 0.75f);
 			Dictionary noiseWordsDic = getNoiseWordsDictionary();
 			for (int i = 0; i < noiseWordsDic.size(); i++) {
 				Hit hit = vocabularyDictionary.search(noiseWordsDic.get(i), 0, noiseWordsDic.get(i).length());
@@ -221,7 +220,7 @@ public class FileDictionaries implements Dictionaries {
 					hit.getWord().setNoiseCharactor();
 				}
 			}
-			
+
 		}
 		return vocabularyDictionary;
 	}
@@ -233,8 +232,7 @@ public class FileDictionaries implements Dictionaries {
 	 */
 	public synchronized Dictionary getConfucianFamilyNamesDictionary() {
 		if (confucianFamilyNamesDictionary == null) {
-			confucianFamilyNamesDictionary = new BinaryDictionary(
-					getConfucianFamilyNames());
+			confucianFamilyNamesDictionary = new BinaryDictionary(getConfucianFamilyNames());
 		}
 		return confucianFamilyNamesDictionary;
 	}
@@ -246,8 +244,7 @@ public class FileDictionaries implements Dictionaries {
 	 */
 	public synchronized Dictionary getNoiseCharactorsDictionary() {
 		if (noiseCharactorsDictionary == null) {
-			noiseCharactorsDictionary = new HashBinaryDictionary(
-					getNoiseCharactors(), 256, 0.75f);
+			noiseCharactorsDictionary = new HashBinaryDictionary(getNoiseCharactors(), 256, 0.75f);
 		}
 		return noiseCharactorsDictionary;
 	}
@@ -278,15 +275,13 @@ public class FileDictionaries implements Dictionaries {
 
 	public synchronized Dictionary getCombinatoricsDictionary() {
 		if (combinatoricsDictionary == null) {
-			combinatoricsDictionary = new BinaryDictionary(
-					getCombinatoricsWords());
+			combinatoricsDictionary = new BinaryDictionary(getCombinatoricsWords());
 		}
 		return combinatoricsDictionary;
 	}
 
-	
 	private Detector detector;
-	
+
 	public synchronized void startDetecting(int interval, DifferenceListener l) {
 		if (detector != null || interval < 0) {
 			return;
@@ -301,7 +296,6 @@ public class FileDictionaries implements Dictionaries {
 		this.detector = detector;
 	}
 
-
 	public synchronized void stopDetecting() {
 		if (detector == null) {
 			return;
@@ -309,20 +303,18 @@ public class FileDictionaries implements Dictionaries {
 		detector.setStop();
 		detector = null;
 	}
-	
+
 	/**
 	 * 
-	 * @param dicName
 	 */
 	protected synchronized void refreshDicWords(String dicPath) {
 		int index = dicPath.lastIndexOf(".dic");
 		String dicName = dicPath.substring(0, index);
 		if (allWords != null) {
 			try {
-				Map<String, Set<Word>> temp = FileWordsReader
-						.readWords(dicHome + dicPath, charsetName, maxWordLen);
+				Map<String, Set<Word>> temp = FileWordsReader.readWords(dicHome + dicPath, charsetName, maxWordLen);
 				Set<Word> conllec = temp.values().iterator().next();
-				if(this.listener != null){
+				if (this.listener != null) {
 					this.listener.refreshDic(dicHome + dicPath, conllec);
 				}
 				allWords.put(dicName, conllec);
@@ -399,7 +391,7 @@ public class FileDictionaries implements Dictionaries {
 				set.addAll(dic);
 			}
 		}
-		if(this.listener != null){
+		if (this.listener != null) {
 			this.listener.readDicFinished(dicHome, set);
 		}
 		Word[] words = (Word[]) set.toArray(new Word[set.size()]);
@@ -431,7 +423,7 @@ public class FileDictionaries implements Dictionaries {
 		Map<String, Set<Word>> dics;
 		String dicPath = dicHome + "/" + dicNameRelativeDicHome + ".dic";
 		try {
-			if(this.listener != null){
+			if (this.listener != null) {
 				this.listener.readDic(dicPath);
 			}
 			dics = FileWordsReader.readWords(dicPath, charsetName, maxWordLen);
@@ -439,7 +431,7 @@ public class FileDictionaries implements Dictionaries {
 			throw toRuntimeException(e);
 		}
 		Set<Word> set = dics.get(dicNameRelativeDicHome);
-		if(this.listener != null){
+		if (this.listener != null) {
 			this.listener.readDicFinished(dicPath, set);
 		}
 		Word[] words = (Word[]) set.toArray(new Word[set.size()]);
@@ -457,13 +449,12 @@ public class FileDictionaries implements Dictionaries {
 		if (allWords == null) {
 			try {
 				log.info("loading dictionaries from " + dicHome);
-				if(this.listener != null){
+				if (this.listener != null) {
 					this.listener.readDic(dicHome);
 				}
 				allWords = FileWordsReader.readWords(dicHome, charsetName, maxWordLen);
 				if (allWords.size() == 0) {
-					String message = "Not found any dictionary files, have you set the 'paoding.dic.home' right? ("
-							+ this.dicHome + ")";
+					String message = "Not found any dictionary files, have you set the 'paoding.dic.home' right? (" + this.dicHome + ")";
 					log.error(message);
 					throw new PaodingAnalysisException(message);
 				}
@@ -478,8 +469,7 @@ public class FileDictionaries implements Dictionaries {
 	// ---------------------------------------
 
 	protected final boolean isSkipForVacabulary(String dicNameRelativeDicHome) {
-		return dicNameRelativeDicHome.startsWith(skipPrefix)
-				|| dicNameRelativeDicHome.indexOf("/" + skipPrefix) != -1;
+		return dicNameRelativeDicHome.startsWith(skipPrefix) || dicNameRelativeDicHome.indexOf("/" + skipPrefix) != -1;
 	}
 
 	protected boolean isUnitDicFile(String dicName) {
@@ -510,6 +500,6 @@ public class FileDictionaries implements Dictionaries {
 
 	public void setAnalyzerListener(PaodingAnalyzerListener listener) {
 		this.listener = listener;
-		
+
 	}
 }

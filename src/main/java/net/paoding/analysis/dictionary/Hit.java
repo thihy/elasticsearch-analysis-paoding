@@ -20,8 +20,10 @@ package net.paoding.analysis.dictionary;
  * <p>
  * 
  * Hit对象包含2类判断信息：
+ * <ul>
  * <li>要检索的词语是否存在于词典中: {@link #isHit()}</li>
  * <li>词典是否含有以给定字符串开头的其他词语: {@link #isUnclosed()}</li>
+ * </ul>
  * <br>
  * 如果上面2个信息都是否定的，则 {@link #isUndefined()}返回true，否则返回false. <br>
  * <br>

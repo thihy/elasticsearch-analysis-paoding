@@ -56,7 +56,7 @@ public class Beef implements CharSequence {
 	/**
 	 * 构造函数
 	 * 
-	 * @param body
+	 * @param value
 	 *            被本对象中直接拥有的文本字符数组
 	 * @param offset
 	 *            字符开始位置，即get(i)返回body[offset+i]字符

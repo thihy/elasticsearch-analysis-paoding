@@ -79,7 +79,7 @@ public interface Knife {
 	 * @param offset
 	 *            Knife开始或有可能开始切词的始发位置。
 	 * @param index
-	 *            被判断的字符的位置，本方法返回的即时该位置字符的性质。index>=offset。<br>
+	 *            被判断的字符的位置，本方法返回的即时该位置字符的性质。index&gt;=offset。<br>
 	 *            当{@link KnifeBox}根据字符的性质(是否为{@link #ASSIGNED})选择Knife分解时，index=offset。
 	 * @return index位置的字符在本Knife中的性质规定 <br>
 	 *         当offset==index时，仅当返回ASSIGNED时，该Knife才有机会被{@link KnifeBox}分配接收文本内容进行分词<br>
@@ -103,10 +103,10 @@ public interface Knife {
 	 *            此次分解从beef的offset位置开始，即本此分解只需从beef.charAt(offset)开始
 	 * @return 非0的整数，即正整数或负整数。<br>
 	 *         正数时：表示此次分解到该结束位置(不包括该边界)，即此次成功分解了从offset到该位置的文本流。<br>
-	 *         特别地，当其>=beef.lenght()表示已经把beef所有的词语分解完毕<br>
+	 *         特别地，当其&gt;=beef.lenght()表示已经把beef所有的词语分解完毕<br>
 	 *         如果，当其==offset时，表示{@link KnifeBox}应该继续遍历还未遍历的Knife，确定是否有其他Knife接收分解offset位置开始的文本内容<br>
 	 *         <p>
-	 *         负数时：该负数的绝对值必须>=offset。这个绝对值表示此次成功分解了从offset到该绝对值的文本流，剩下的字符，该knife已经不能正确解析。(一般此时应该重新传入新的beef对象解析)
+	 *         负数时：该负数的绝对值必须&gt;=offset。这个绝对值表示此次成功分解了从offset到该绝对值的文本流，剩下的字符，该knife已经不能正确解析。(一般此时应该重新传入新的beef对象解析)
 	 *         <p>
 	 *         比如，有内容为"hello yang!"的文章，先读入8个字符"hello ya"，<br>
 	 *         此时分解后应该返回-5，表示正确解析到5这个位置，即"hello"，但必须读入新的字符然后再继续解析。

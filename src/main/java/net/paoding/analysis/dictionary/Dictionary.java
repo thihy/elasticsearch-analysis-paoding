@@ -30,9 +30,7 @@ package net.paoding.analysis.dictionary;
 public interface Dictionary {
 
 	/**
-	 * 返回字典中词语数>=0
-	 * 
-	 * @return
+	 * 返回字典中词语数&gt;=0
 	 */
 	public int size();
 

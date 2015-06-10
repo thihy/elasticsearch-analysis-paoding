@@ -22,7 +22,6 @@ import org.elasticsearch.common.logging.Loggers;
  * 无实际用处的Knife。用于示例装载Knife并进行属性设置。
  * <p>
  * 
- * @see paoding-knives-user.properties
  * @author zhiliang.wang [qieqie.wang@gmail.com]
  * @since 2.0.2
  */
