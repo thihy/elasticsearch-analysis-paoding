@@ -11,3 +11,5 @@
 /*.ipr
 /*.iws
 node_modules
+pom.xml.releaseBackup
+release.properties

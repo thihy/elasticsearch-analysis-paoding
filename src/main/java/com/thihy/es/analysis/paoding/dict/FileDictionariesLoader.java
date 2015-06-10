@@ -7,7 +7,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.UnsupportedEncodingException;
 import java.util.EnumMap;
 import java.util.Locale;
 import java.util.Map;
@@ -16,7 +15,6 @@ import java.util.Map.Entry;
 import net.paoding.analysis.dictionary.Dictionary;
 import net.paoding.analysis.knife.Dictionaries;
 
-import org.elasticsearch.common.Classes;
 import org.elasticsearch.common.collect.ImmutableMap;
 import org.elasticsearch.common.collect.Maps;
 import org.elasticsearch.common.inject.Inject;
@@ -28,7 +26,10 @@ import org.elasticsearch.common.settings.Settings;
 public class FileDictionariesLoader implements DictionariesLoader {
 	private static final ESLogger LOG = Loggers.getLogger(FileDictionariesLoader.class);
 
-	private static final String DEFAULT_DICT_RESOURCE_DIR = "com/thihy/es/analysis/paoding/dict";
+	private static final String DEFAULT_DICT_RESOURCE_DIR = "/com/thihy/es/analysis/paoding/dict";
+
+	private static volatile MappedDictionaries defaultDictionaries = null;
+	private static final Object DEFAULT_DICTIONARIES_LOCK = new Object();
 
 	private static final String DEFAULT_FILE_SUFFIX = ".dic";
 	private static final EnumMap<DictionaryType, String> FILE_NAME_CONFIGS;
@@ -74,6 +75,10 @@ public class FileDictionariesLoader implements DictionariesLoader {
 
 	@Override
 	public Dictionaries load() throws IOException {
+		if (this.path == null) {
+			return loadDefaultDictionaries();
+		}
+
 		MappedDictionaries dictionaries = new MappedDictionaries();
 		for (DictionaryType dictionaryType : DictionaryType.values()) {
 			String fileName = fileNames.get(dictionaryType);
@@ -88,12 +93,36 @@ public class FileDictionariesLoader implements DictionariesLoader {
 		return dictionaries;
 	}
 
+	private MappedDictionaries loadDefaultDictionaries() throws IOException {
+		MappedDictionaries result = defaultDictionaries;
+		if (result == null) {
+			synchronized (DEFAULT_DICTIONARIES_LOCK) {
+				result = defaultDictionaries;
+				if (result == null) {
+					result = new MappedDictionaries();
+					for (DictionaryType dictionaryType : DictionaryType.values()) {
+						String fileName = fileNames.get(dictionaryType);
+						if (fileName == null) {
+							fileName = dictionaryType.name().toLowerCase(Locale.ROOT);
+						}
+						String resourcePath = DEFAULT_DICT_RESOURCE_DIR + "/" + fileName + DEFAULT_FILE_SUFFIX;
+						try (InputStream in = FileDictionariesLoader.class.getResourceAsStream(resourcePath)) {
+							Dictionary dictionary = loadDictionary(dictionaryType, "classpath:" + resourcePath, in);
+							if (dictionary != null) {
+								result.setDictionary(dictionaryType, dictionary);
+							}
+						}
+					}
+					defaultDictionaries = result;
+				}
+			}
+		}
+		return result;
+	}
+
 	private Dictionary loadDictionary(DictionaryType dictionaryType, String fileName) throws IOException {
 		InputStream in = null;
 		String localPath = this.path;
-		if (localPath == null) {
-			localPath = DEFAULT_DICT_RESOURCE_DIR;
-		}
 
 		String filePath;
 		if (!localPath.endsWith("/")) {
@@ -107,49 +136,49 @@ public class FileDictionariesLoader implements DictionariesLoader {
 			try {
 				in = new FileInputStream(file);
 			} catch (FileNotFoundException e) {
-				logExceptionWhenLoadDictonary(dictionaryType, file, e);
+				logExceptionWhenLoadDictonary(dictionaryType, file.getPath(), e);
+				return null;
 			}
+			return loadDictionary(dictionaryType, file.getPath(), in);
 		} else {
-			ClassLoader classLoader = this.getClass().getClassLoader();
-			if (classLoader == null) {
-				classLoader = Classes.getDefaultClassLoader();
-			}
-			in = classLoader.getResourceAsStream(filePath);
+			logExceptionWhenLoadDictonary(dictionaryType, filePath, new FileNotFoundException("File does not exist: " + file.getPath()));
+			return null;
 		}
+	}
+
+	private Dictionary loadDictionary(DictionaryType dictionaryType, String path, InputStream in) throws IOException {
 		if (in == null) {
-			LOG.debug("Skip to load [{}] dict from path [{}].", dictionaryType, file);
+			LOG.debug("Skip to load [{}] dict from path [{}].", dictionaryType, path);
 			return null;
 		}
 		try {
-			LOG.debug("Begin to load [{}] dict from file [{}].", dictionaryType, file);
+			LOG.debug("Begin to load [{}] dict from path [{}].", dictionaryType, path);
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in, "UTF-8"));
 			return dictionaryLoader.loadDictionary(reader);
-		} catch (UnsupportedEncodingException e) {
-			logExceptionWhenLoadDictonary(dictionaryType, file, e);
 		} catch (IOException e) {
-			logOrRethrowExceptionWhenLoadDictonary(dictionaryType, file, e);
+			logOrRethrowExceptionWhenLoadDictonary(dictionaryType, path, e);
 		} finally {
 			try {
 				in.close();
 			} catch (IOException e) {
-				logOrRethrowExceptionWhenLoadDictonary(dictionaryType, file, e);
+				logOrRethrowExceptionWhenLoadDictonary(dictionaryType, path, e);
 			} finally {
-				LOG.debug("End to load [{}] dict from file [{}].", dictionaryType, file);
+				LOG.debug("End to load [{}] dict from file [{}].", dictionaryType, path);
 			}
 		}
 		return null;
 	}
 
-	private <T extends Exception> void logOrRethrowExceptionWhenLoadDictonary(DictionaryType dictionaryType, File file, T exception)
+	private <T extends Exception> void logOrRethrowExceptionWhenLoadDictonary(DictionaryType dictionaryType, String path, T exception)
 			throws T {
 		if (failIfError) {
 			throw exception;
 		} else {
-			logExceptionWhenLoadDictonary(dictionaryType, file, exception);
+			logExceptionWhenLoadDictonary(dictionaryType, path, exception);
 		}
 	}
 
-	private <T extends Exception> void logExceptionWhenLoadDictonary(DictionaryType dictionaryType, File file, T exception) {
-		LOG.warn("Failed to read [{}] dictionary, the file path is [{}].", exception, dictionaryType, file);
+	private <T extends Exception> void logExceptionWhenLoadDictonary(DictionaryType dictionaryType, String path, T exception) {
+		LOG.warn("Failed to read [{}] dictionary, the file path is [{}].", exception, dictionaryType, path);
 	}
 }
